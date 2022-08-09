@@ -21,15 +21,20 @@ class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         binding = DataBindingUtil.setContentView(this,R.layout.activity_main)
 
         showLoading()
         setView()
-        callObservable()
         viewModel.getUsers()
     }
 
-    private fun callObservable(){
+    override fun onResume() {
+        super.onResume()
+        initObservable()
+    }
+
+    private fun initObservable(){
         viewModel.getUserList().observe(this, Observer {
             hiddenLoading()
             adapter.users = it
