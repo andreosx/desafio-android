@@ -6,8 +6,8 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
-class RetrofitService {
-    
+class Service {
+
     private val retrofit = Retrofit.Builder()
         .baseUrl(Constants.url)
         .client(OkHttpClient.Builder().build())

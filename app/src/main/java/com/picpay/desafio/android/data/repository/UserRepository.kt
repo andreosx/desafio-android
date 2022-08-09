@@ -1,21 +1,22 @@
 package com.picpay.desafio.android.data.repository
 
-import android.icu.util.Output
 import com.picpay.desafio.android.data.api.PicPayApi
-import com.picpay.desafio.android.data.model.UserDTO
+import com.picpay.desafio.android.data.model.toUser
 import com.picpay.desafio.android.domain.model.User
-import retrofit2.Response
+import com.picpay.desafio.android.util.Output
+import com.picpay.desafio.android.util.parseResponse
 
-class UserRepository(
-    private val retrofitApi: PicPayApi
-){
+class UserRepositoryImpl(
+    private val api: PicPayApi
+): UserRepository {
 
-    suspend fun getUsers(): Response<List<UserDTO>> {
-        return retrofitApi.getUsers()
+    override suspend fun getUsers(): List<User> {
+        return when(api.getUsers().parseResponse()){
+            is Output.Success -> api.getUsers().body()!!.map { it.toUser() }
+            is Output.Failure -> throw Exception()
+        }
     }
-
-    interface UserRepository{
-        suspend fun getUsers(): List<User>
-    }
-
+}
+interface UserRepository {
+    suspend fun getUsers(): List<User>
 }

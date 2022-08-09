@@ -1,63 +1,59 @@
 package com.picpay.desafio.android.presenter.activity
 
+import android.os.Bundle
 import android.view.View
-import android.widget.ProgressBar
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.picpay.desafio.android.R
-import com.picpay.desafio.android.data.repository.UserRepository
+import com.picpay.desafio.android.databinding.ActivityMainBinding
 import com.picpay.desafio.android.presenter.adapter.UserListAdapter
 import com.picpay.desafio.android.presenter.viewmodel.UserListViewModel
-import com.picpay.desafio.android.presenter.viewmodel.factory.UserViewModelFactory
-import com.picpay.desafio.android.util.retrofit.RetrofitService
+import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : AppCompatActivity(R.layout.activity_main) {
 
-    private lateinit var recyclerView: RecyclerView
-    private lateinit var progressBar: ProgressBar
+    private lateinit var binding: ActivityMainBinding
     private lateinit var adapter: UserListAdapter
-    private lateinit var viewModel: UserListViewModel
-    private val retrofitService = RetrofitService.getInstance()
+    private val viewModel by viewModel<UserListViewModel>()
 
-    override fun onResume() {
-        super.onResume()
-
-        viewModel = ViewModelProvider(this, UserViewModelFactory(UserRepository(retrofitService))).get(UserListViewModel::class.java)
-
-        recyclerView = findViewById(R.id.recyclerView)
-        progressBar = findViewById(R.id.user_list_progress_bar)
-
-        adapter = UserListAdapter()
-        recyclerView.adapter = adapter
-        recyclerView.layoutManager = LinearLayoutManager(this)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = DataBindingUtil.setContentView(this,R.layout.activity_main)
 
         showLoading()
+        setView()
         callObservable()
         viewModel.getUsers()
     }
 
     private fun callObservable(){
-        viewModel.userList.observe(this, Observer {
+        viewModel.getUserList().observe(this, Observer {
             hiddenLoading()
             adapter.users = it
         })
 
-        viewModel.errorMessage.observe(this, Observer {
+        viewModel.getError().observe(this, Observer {
             hiddenLoading()
-            recyclerView.visibility = View.GONE
+            binding.recyclerView.visibility = View.GONE
             Toast.makeText(this@MainActivity, getString(R.string.error), Toast.LENGTH_SHORT).show()
         })
     }
 
+    private fun setView(){
+        adapter = UserListAdapter()
+        binding.recyclerView.adapter = adapter
+        binding.recyclerView.layoutManager = LinearLayoutManager(this)
+    }
+
     private fun showLoading(){
-        progressBar.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
     }
 
     private fun hiddenLoading(){
-        progressBar.visibility = View.GONE
+        binding.progressBar.visibility = View.GONE
     }
+
 }

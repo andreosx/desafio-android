@@ -1,21 +1,22 @@
-package com.debug
+package com.picpay.desafio.android
 
-import com.debug.data.MealRepository
-import com.debug.data.MealRepositoryImpl
-import com.debug.data.api.MealApi
-import com.debug.domain.GetCategories
-import com.debug.domain.GetCategoriesUseCase
-import com.debug.network.Service
-import com.debug.presenter.MealViewModel
+import com.picpay.desafio.android.data.api.PicPayApi
+import com.picpay.desafio.android.data.repository.UserRepository
+import com.picpay.desafio.android.data.repository.UserRepositoryImpl
+import com.picpay.desafio.android.domain.use_case.GetUser
+import com.picpay.desafio.android.domain.use_case.getUserUseCase
+import com.picpay.desafio.android.presenter.viewmodel.UserListViewModel
+import com.picpay.desafio.android.util.retrofit.Service
 import org.koin.dsl.module
 
-val mealServiceModule = module {
+val picPayServiceModule = module {
 
-    single { Service().createService(MealApi::class.java) }
+    single { Service().createService(PicPayApi::class.java) }
 
-    single<MealRepository> { MealRepositoryImpl(get()) }
+    single<UserRepository> { UserRepositoryImpl(get()) }
 
-    single<GetCategoriesUseCase> { GetCategories(get()) }
+    single<getUserUseCase> { GetUser(get()) }
 
-    single { MealViewModel(get()) }
+    single { UserListViewModel(get()) }
 }
+

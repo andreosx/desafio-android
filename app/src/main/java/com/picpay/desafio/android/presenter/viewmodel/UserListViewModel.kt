@@ -1,17 +1,17 @@
 package com.picpay.desafio.android.presenter.viewmodel
 
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.picpay.desafio.android.data.model.toUser
-import com.picpay.desafio.android.data.repository.UserRepository
 import com.picpay.desafio.android.domain.model.User
+import com.picpay.desafio.android.domain.use_case.getUserUseCase
 import io.reactivex.plugins.RxJavaPlugins.onError
 import kotlinx.coroutines.*
 
-class UserListViewModel constructor(private val repository: UserRepository)  : ViewModel() {
+class UserListViewModel (private val getUserUseCase: getUserUseCase)  : ViewModel() {
 
-    val userList = MutableLiveData<List<User>>()
-    val errorMessage = MutableLiveData<String>()
+    private val userList = MutableLiveData<List<User>>()
+    private val errorMessage = MutableLiveData<String>()
     var job: Job? = null
 
     private val exceptionHandler = CoroutineExceptionHandler { _, throwable ->
@@ -20,15 +20,23 @@ class UserListViewModel constructor(private val repository: UserRepository)  : V
 
     fun getUsers() {
         job = CoroutineScope(Dispatchers.IO + exceptionHandler).launch {
-            val response = repository.getUsers()
+            val response = getUserUseCase.getUsers()
             withContext(Dispatchers.Main) {
-                if (response.isSuccessful) {
-                    userList.postValue(response.body()?.map { it.toUser() })
-                } else {
-                    errorMessage.postValue("Error : ${response.message()} ")
+                if(response.isNotEmpty()){
+                    userList.postValue(response)
+                }else{
+                    errorMessage.postValue("Erro")
                 }
             }
         }
+    }
+
+    fun getUserList(): LiveData<List<User>> {
+        return userList
+    }
+
+    fun getError(): LiveData<String> {
+        return errorMessage
     }
 
     override fun onCleared() {
