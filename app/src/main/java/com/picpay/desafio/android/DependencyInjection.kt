@@ -7,16 +7,17 @@ import com.picpay.desafio.android.domain.use_case.GetUser
 import com.picpay.desafio.android.domain.use_case.getUserUseCase
 import com.picpay.desafio.android.presenter.viewmodel.UserListViewModel
 import com.picpay.desafio.android.util.retrofit.Service
+import org.koin.androidx.viewmodel.dsl.viewModel
 import org.koin.dsl.module
 
 val picPayServiceModule = module {
 
     single { Service().createService(PicPayApi::class.java) }
 
-    single<UserRepository> { UserRepositoryImpl(get()) }
+    factory<UserRepository> { UserRepositoryImpl(get()) }
 
-    single<getUserUseCase> { GetUser(get()) }
+    factory<getUserUseCase> { GetUser(get()) }
 
-    single { UserListViewModel(get()) }
+    viewModel { UserListViewModel(get()) }
 }
 
